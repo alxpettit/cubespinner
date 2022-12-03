@@ -1,7 +1,11 @@
 use std::f32::consts::PI;
 
-use bevy::{prelude::*, asset::Asset};
+use bevy::{prelude::*, asset::Asset, render::render_resource::TextureDimension};
 use bevy_egui::{egui, EguiContext, EguiPlugin};
+
+
+
+use rand::prelude::*;
 
 mod debug_texture;
 
@@ -31,7 +35,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>
 ) {
     let debug_material = materials.add(StandardMaterial {
-        base_color_texture: Some(images.add(uv_debug_texture())),
+        //base_color_texture: Some(images.add(uv_debug_texture())),
         ..default()
     });
     let shapes = [
@@ -43,7 +47,7 @@ fn setup(
             mesh: shape,
             material: debug_material.clone(),
             transform: Transform::from_xyz(
-                -X_EXTENT/2. + i as f32 / (shapes_len - 1) as f32 * X_EXTENT,
+                0.,
                 2.,
                 0.
             ).with_rotation(Quat::from_rotation_x(-PI / 4.)),
@@ -81,10 +85,22 @@ fn rotate(mut query: Query<&mut Transform, With<Shape>>, time: Res<Time>) {
     }
 }
 
-fn ui_example(mut egui_context: ResMut<EguiContext>) {
+fn ui_example(mut egui_context: ResMut<EguiContext>,
+    mut materials: ResMut<Assets<StandardMaterial>>) {
     egui::Window::new("Gay Agenda").show(egui_context.ctx_mut(), |ui| {
         if ui.button("GAY").clicked() {
             println!("ACTIVATE GAY");
+            
+            let red = rand::thread_rng().gen();
+            let green = rand::thread_rng().gen();
+            let blue = rand::thread_rng().gen();
+
+            let color = Color::rgb(red, green, blue);
+
+            for (id, material) in materials.iter_mut() {
+                material.base_color = color;
+            }
+
         }
     });
 
