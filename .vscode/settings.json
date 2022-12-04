@@ -1,0 +1,9 @@
+{
+    // Duplicate target so we can check our code & compile at the same time
+    "rust-analyzer.checkOnSave.extraArgs": ["--target-dir", "./target/check"],
+
+    // rust-analyzer was being annoying about `#[async_trait(?Send)]'`
+    "rust-analyzer.diagnostics.disabled": [
+        "unresolved-proc-macro"
+    ]
+}

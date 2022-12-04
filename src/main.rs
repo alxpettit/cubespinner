@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 
-use bevy::{prelude::*};
+use bevy::{prelude::*, reflect::erased_serde::__private::serde::__private::de};
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 
-
+use bevy_infinite_grid::{InfiniteGridPlugin, InfiniteGridBundle, InfiniteGrid, GridShadowCamera};
 use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle, PickableBundle, PickingEvent};
 use bevy_transform_gizmo::{TransformGizmoPlugin, GizmoTransformable, GizmoPickSource};
 use rand::prelude::*;
@@ -39,6 +39,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(DefaultPickingPlugins)
+        .add_plugin(InfiniteGridPlugin)
         .add_plugin(TransformGizmoPlugin::default())
         .add_plugin(EguiPlugin)
         .add_startup_system(setup)
@@ -69,6 +70,13 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>
 ) { 
     commands.insert_resource(ProgramState::default());
+    let infinite_grid_bundle = InfiniteGridBundle {
+        grid: InfiniteGrid {
+            ..default()
+        },
+        ..default()
+    };
+    commands.spawn(infinite_grid_bundle);
 
     let debug_material = materials.add(StandardMaterial {
         //base_color_texture: Some(images.add(uv_debug_texture())),
@@ -114,7 +122,8 @@ fn setup(
     commands.spawn((camera_3d_bundle,
         PickingCameraBundle::default(),
         GizmoPickSource::default()
-        ));
+        ))
+        .insert(GridShadowCamera);
 }
 
 fn rotate(mut query: Query<&mut Transform, With<Shape>>, time: Res<Time>) {
