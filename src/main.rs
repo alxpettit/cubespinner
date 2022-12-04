@@ -14,6 +14,28 @@ use debug_texture::uv_debug_texture;
 #[derive(Component)]
 struct Shape;
 
+
+#[derive(Resource)]
+struct ColorF32 {
+    r: f32,
+    g: f32,
+    b: f32
+}
+
+impl Default for ColorF32 {
+    fn default() -> Self {
+        Self {
+            r: 1., g: 1., b: 1.
+        }
+    }
+}
+
+#[derive(Resource)]
+#[derive(Default)]
+struct ProgramState {
+    color_sliders: ColorF32
+}
+
 const X_EXTENT: f32 = 14.;
 
 fn main() {
@@ -33,7 +55,9 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<StandardMaterial>>
-) {
+) { 
+    commands.insert_resource(ProgramState::default());
+
     let debug_material = materials.add(StandardMaterial {
         //base_color_texture: Some(images.add(uv_debug_texture())),
         ..default()
@@ -49,7 +73,7 @@ fn setup(
             transform: Transform::from_xyz(
                 0.,
                 2.,
-                0.
+                5.
             ).with_rotation(Quat::from_rotation_x(-PI / 4.)),
             ..default()
         };
@@ -86,22 +110,50 @@ fn rotate(mut query: Query<&mut Transform, With<Shape>>, time: Res<Time>) {
 }
 
 fn ui_example(mut egui_context: ResMut<EguiContext>,
-    mut materials: ResMut<Assets<StandardMaterial>>) {
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut program_state: ResMut<ProgramState>) {
+
+    let mut update_material_color =  |materials: &mut ResMut<Assets<StandardMaterial>>, program_state: &mut ResMut<ProgramState>| {
+        for (_id, material) in materials.iter_mut() {
+            material.base_color = Color::rgb_linear(program_state.color_sliders.r,
+            program_state.color_sliders.g,
+            program_state.color_sliders.b);
+        }
+    };
+
     egui::Window::new("Gay Agenda").show(egui_context.ctx_mut(), |ui| {
         if ui.button("GAY").clicked() {
             println!("ACTIVATE GAY");
             
-            let red = rand::thread_rng().gen();
-            let green = rand::thread_rng().gen();
-            let blue = rand::thread_rng().gen();
+            program_state.color_sliders.r = rand::thread_rng().gen();
+            program_state.color_sliders.g = rand::thread_rng().gen();
+            program_state.color_sliders.b = rand::thread_rng().gen();
 
-            let color = Color::rgb(red, green, blue);
-
-            for (id, material) in materials.iter_mut() {
-                material.base_color = color;
-            }
-
+            update_material_color(&mut materials, &mut program_state);
         }
+
+        ui.horizontal(|ui| {
+            ui.label("R");
+            if ui.add(egui::Slider::new(&mut program_state.color_sliders.r, 0.0..=1.0)).changed() {
+                update_material_color(&mut materials, &mut program_state);
+            }
+        });
+
+        ui.horizontal(|ui| {
+            ui.label("G");
+            if ui.add(egui::Slider::new(&mut program_state.color_sliders.g, 0.0..=1.0)).changed() {
+                update_material_color(&mut materials, &mut program_state);
+            }
+        });
+
+        ui.horizontal(|ui| {
+            ui.label("B");
+            if ui.add(egui::Slider::new(&mut program_state.color_sliders.b, 0.0..=1.0)).changed() {
+                for (_id, material) in materials.iter_mut() {
+                    material.base_color.set_b(program_state.color_sliders.b);
+                }
+            }
+        });
     });
 
 }
