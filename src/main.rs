@@ -5,6 +5,7 @@ use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 
 
+use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle, PickableBundle, PickingEvent};
 use rand::prelude::*;
 
 #[derive(Component)]
@@ -29,19 +30,35 @@ impl Default for ColorF32 {
 #[derive(Resource)]
 #[derive(Default)]
 struct ProgramState {
-    color_sliders: ColorF32
+    color_sliders: ColorF32,
+    expose_gay: bool
 }
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(DefaultPickingPlugins)
         .add_plugin(EguiPlugin)
         .add_startup_system(setup)
         // Systems that create Egui widgets should be run during the `CoreStage::Update` stage,
         // or after the `EguiSystem::BeginFrame` system (which belongs to the `CoreStage::PreUpdate` stage).
         .add_system(ui_example)
         .add_system(rotate)
+        .add_system_to_stage(CoreStage::PostUpdate, pick_event)
         .run();
+}
+
+fn pick_event(mut events: EventReader<PickingEvent>, mut program_state: ResMut<ProgramState>) {
+    for event in events.iter() {
+        match event {
+            PickingEvent::Selection(e) => info!("Select event: {:?}", e),
+            PickingEvent::Hover(e) => info!("Hover event: {:?}", e),
+            PickingEvent::Clicked(e) => {
+                info!("Click event: {:?}", e);
+                program_state.expose_gay = true;
+            },
+        }
+    }
 }
 
 fn setup(
@@ -69,7 +86,7 @@ fn setup(
             ).with_rotation(Quat::from_rotation_x(-PI / 4.)),
             ..default()
         };
-        commands.spawn((pbr, Shape));
+        commands.spawn((pbr, Shape, PickableBundle::default()));
     }
 
     let point_light = PointLight {
@@ -92,7 +109,8 @@ fn setup(
         ..default()
     };
 
-    commands.spawn(camera_3d_bundle);
+    commands.spawn((camera_3d_bundle,
+        PickingCameraBundle::default()));
 }
 
 fn rotate(mut query: Query<&mut Transform, With<Shape>>, time: Res<Time>) {
@@ -112,6 +130,15 @@ fn ui_example(mut egui_context: ResMut<EguiContext>,
             program_state.color_sliders.b);
         }
     };
+
+    if program_state.expose_gay {
+        egui::Window::new("UWU").show(egui_context.ctx_mut(), |ui| {
+            ui.label("GAAYYYYYYYY");
+            if ui.button("yes thsank u").clicked() {
+                program_state.expose_gay = false;
+            }
+        });
+    }
 
     egui::Window::new("Gay Agenda").show(egui_context.ctx_mut(), |ui| {
         if ui.button("GAY").clicked() {
