@@ -7,9 +7,6 @@ use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 use rand::prelude::*;
 
-mod debug_texture;
-
-
 #[derive(Component)]
 struct Shape;
 
