@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use bevy::{prelude::*, asset::Asset, render::render_resource::TextureDimension};
+use bevy::{prelude::*};
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 
@@ -9,7 +9,6 @@ use rand::prelude::*;
 
 mod debug_texture;
 
-use debug_texture::uv_debug_texture;
 
 #[derive(Component)]
 struct Shape;
@@ -36,8 +35,6 @@ struct ProgramState {
     color_sliders: ColorF32
 }
 
-const X_EXTENT: f32 = 14.;
-
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
@@ -53,7 +50,6 @@ fn main() {
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<StandardMaterial>>
 ) { 
     commands.insert_resource(ProgramState::default());
@@ -65,7 +61,6 @@ fn setup(
     let shapes = [
         meshes.add(shape::Cube::default().into())
     ];
-    let shapes_len = shapes.len();
     for (i, shape) in shapes.into_iter().enumerate() {
         let pbr = PbrBundle {
             mesh: shape,
@@ -113,7 +108,7 @@ fn ui_example(mut egui_context: ResMut<EguiContext>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut program_state: ResMut<ProgramState>) {
 
-    let mut update_material_color =  |materials: &mut ResMut<Assets<StandardMaterial>>, program_state: &mut ResMut<ProgramState>| {
+    let update_material_color =  |materials: &mut ResMut<Assets<StandardMaterial>>, program_state: &mut ResMut<ProgramState>| {
         for (_id, material) in materials.iter_mut() {
             material.base_color = Color::rgb_linear(program_state.color_sliders.r,
             program_state.color_sliders.g,
