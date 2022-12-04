@@ -58,7 +58,7 @@ fn setup(
     let shapes = [
         meshes.add(shape::Cube::default().into())
     ];
-    for (i, shape) in shapes.into_iter().enumerate() {
+    for (_i, shape) in shapes.into_iter().enumerate() {
         let pbr = PbrBundle {
             mesh: shape,
             material: debug_material.clone(),
