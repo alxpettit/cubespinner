@@ -828,6 +828,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_transform_gizmo"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b13f7c7220c4dee7ca39a0b6b31fe85da21144259a1c6e50d175faa5f614688"
+dependencies = [
+ "bevy",
+ "bevy_mod_picking",
+ "bevy_mod_raycast",
+ "naga",
+]
+
+[[package]]
 name = "bevy_ui"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1271,6 +1283,7 @@ dependencies = [
  "bevy",
  "bevy_egui",
  "bevy_mod_picking",
+ "bevy_transform_gizmo",
  "rand",
 ]
 

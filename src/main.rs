@@ -6,6 +6,7 @@ use bevy_egui::{egui, EguiContext, EguiPlugin};
 
 
 use bevy_mod_picking::{DefaultPickingPlugins, PickingCameraBundle, PickableBundle, PickingEvent};
+use bevy_transform_gizmo::{TransformGizmoPlugin, GizmoTransformable, GizmoPickSource};
 use rand::prelude::*;
 
 #[derive(Component)]
@@ -38,6 +39,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(DefaultPickingPlugins)
+        .add_plugin(TransformGizmoPlugin::default())
         .add_plugin(EguiPlugin)
         .add_startup_system(setup)
         // Systems that create Egui widgets should be run during the `CoreStage::Update` stage,
@@ -86,7 +88,7 @@ fn setup(
             ).with_rotation(Quat::from_rotation_x(-PI / 4.)),
             ..default()
         };
-        commands.spawn((pbr, Shape, PickableBundle::default()));
+        commands.spawn((pbr, Shape, PickableBundle::default(), GizmoTransformable));
     }
 
     let point_light = PointLight {
@@ -110,7 +112,9 @@ fn setup(
     };
 
     commands.spawn((camera_3d_bundle,
-        PickingCameraBundle::default()));
+        PickingCameraBundle::default(),
+        GizmoPickSource::default()
+        ));
 }
 
 fn rotate(mut query: Query<&mut Transform, With<Shape>>, time: Res<Time>) {
